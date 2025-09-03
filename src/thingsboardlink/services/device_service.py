@@ -193,3 +193,67 @@ class DeviceService:
                 f"删除设备失败: {str(e)}",
                 device_id=device_id
             )
+
+    def get_tenant_devices(self,
+                           page_size: int = 10,
+                           page: int = 0,
+                           text_search: Optional[str] = None,
+                           sort_property: Optional[str] = None,
+                           sort_order: Optional[str] = None) -> PageData:
+        """
+        获取租户下的设备列表
+
+        Args:
+            page_size: 页面大小
+            page: 页码（从 0 开始）
+            text_search: 文本搜索
+            sort_property: 排序属性
+            sort_order: 排序顺序（ASC/DESC）
+
+        Returns:
+            PageData: 分页设备数据
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if page_size <= 0:
+            raise ValidationError(
+                field_name="page_size",
+                expected_type="正整数 | Positive integer",
+                actual_value=page_size,
+                message="页面大小必须大于 0 | Page size must be greater than 0"
+            )
+
+        if page < 0:
+            raise ValidationError(
+                field_name="page",
+                expected_type="非负整数 | Non-negative integer",
+                actual_value=page,
+                message="页码不能小于 0 | Page number cannot be less than 0"
+            )
+
+        params = {
+            "pageSize": page_size,
+            "page": page
+        }
+
+        if text_search:
+            params["textSearch"] = text_search
+        if sort_property:
+            params["sortProperty"] = sort_property
+        if sort_order:
+            params["sortOrder"] = sort_order
+
+        try:
+            response = self.client.get(
+                "/api/tenant/devices",
+                params=params
+            )
+
+            page_data = response.json()
+            return PageData.from_dict(page_data, Device)
+
+        except Exception as e:
+            raise DeviceError(
+                f"获取设备列表失败 | Failed to get device list: {str(e)}"
+            )
