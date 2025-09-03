@@ -77,3 +77,41 @@ class DeviceService:
                 message=f"创建设备失败: {str(e)}",
                 device_name=name
             )
+
+    def get_device_by_id(self, device_id: str) -> Device:
+        """
+        根据 ID 获取设备
+
+        Args:
+            device_id: 设备 ID
+
+        Returns:
+            Device: 设备对象
+
+        Raises:
+            NotFoundError: 设备不存在时抛出
+            ValidationError: 参数验证失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            response = self.client.get(f"/api/device/{device_id}")
+            device_data = response.json()
+            return Device.from_dict(device_data)
+
+        except Exception as e:
+            if "404" in str(e) or "Not Found" in str(e):
+                raise NotFoundError(
+                    resource_type="设备",
+                    resource_id=device_id
+                )
+            raise DeviceError(
+                f"获取设备失败: {str(e)}",
+                device_id=device_id
+            )
