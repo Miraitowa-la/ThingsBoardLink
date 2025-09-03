@@ -4,7 +4,6 @@ thingsboardlink 异常处理模块
 该模块定义了 thingsboardlink 软件包中使用的所有自定义异常类。
 这些异常类提供了详细的错误信息和分层的异常处理机制。
 """
-from idlelib.debugobj import ObjectTreeItem
 from typing import Dict, Any, Optional
 
 
@@ -19,8 +18,10 @@ class ThingsBoardError(Exception):
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
         """
         初始化异常
-        :param message: 错误信息
-        :param details: 错误详情字典
+
+        Args:
+            message: 错误信息
+            details: 错误详情字典
         """
         super().__init__(message)
         self.message = message
@@ -45,8 +46,10 @@ class AuthenticationError(ThingsBoardError):
                  details: Optional[Dict[str, Any]] = None):
         """
         初始化认证错误异常
-        :param message: 错误信息
-        :param details: 错误详情字典
+
+        Args:
+            message: 错误信息
+            details: 错误详情字典
         """
         super().__init__(message, details)
 
@@ -64,9 +67,11 @@ class NotFoundError(ThingsBoardError):
                  message: Optional[str] = None):
         """
         初始化资源未找到错误异常
-        :param resource_type: 资源类型
-        :param resource_id: 资源ID
-        :param message: 错误信息
+
+        Args:
+            resource_type: 资源类型
+            resource_id: 资源ID
+            message: 错误信息
         """
         if message is None:
             if resource_id:
@@ -95,10 +100,12 @@ class ValidationError(ThingsBoardError):
                  message: Optional[str] = None):
         """
         初始化数据验证错误异常
-        :param field_name: 字段名称
-        :param expected_type: 期望类型
-        :param actual_value: 实际值
-        :param message: 错误信息
+
+        Args:
+            field_name: 字段名称
+            expected_type: 期望类型
+            actual_value: 实际值
+            message: 错误信息
         """
         if message is None:
             if field_name and expected_type:
@@ -129,11 +136,13 @@ class APIError(ThingsBoardError):
                  request_method: Optional[str] = None):
         """
         初始化 API 调用错误异常
-        :param message: 错误信息
-        :param status_code: 状态码
-        :param response_data: 响应数据
-        :param request_url: 请求地址
-        :param request_method: 请求方法
+
+        Args:
+            message: 错误信息
+            status_code: 状态码
+            response_data: 响应数据
+            request_url: 请求地址
+            request_method: 请求方法
         """
         details = {
             "status_code": status_code,
@@ -151,9 +160,12 @@ class APIError(ThingsBoardError):
     def from_response(cls, response, message: Optional[str] = None):
         """
         从 HTTP 响应创建 API 调用错误异常
-        :param response: HTTP 响应对象
-        :param message: 错误消息
-        :return: API 调用错误异常
+
+        Args:
+            response: HTTP 响应对象
+            message: 错误消息
+        Return:
+            API 调用错误异常
         """
         if message is None:
             message = f"API 调用失败，状态码: {response.status_code}"
@@ -185,9 +197,11 @@ class ConnectionError(ThingsBoardError):
                  details: Optional[Dict[str, Any]] = None):
         """
         初始化连接错误异常
-        :param message: 错误消息
-        :param server_url: 服务器地址
-        :param details: 详情
+
+        Args:
+            message: 错误消息
+            server_url: 服务器地址
+            details: 详情
         """
         if details is None:
             details = {}
@@ -209,9 +223,11 @@ class TimeoutError(ThingsBoardError):
                  operation: Optional[str] = None):
         """
         初始化超时错误异常
-        :param message: 错误消息
-        :param timeout_seconds: 超时时间
-        :param operation: 操作
+
+        Args:
+            message: 错误消息
+            timeout_seconds: 超时时间
+            operation: 操作
         """
         details = {
             "timeout_seconds": timeout_seconds,
@@ -233,9 +249,11 @@ class ConfigurationError(ThingsBoardError):
                  expected_value: Optional[str] = None):
         """
         初始化配置错误异常
-        :param message: 错误消息
-        :param config_key: 配置键
-        :param expected_value: 期望值
+
+        Args:
+            message: 错误消息
+            config_key: 配置键
+            expected_value: 期望值
         """
         details = {
             "config_key": config_key,
@@ -257,9 +275,11 @@ class RateLimitError(APIError):
                  limit_type: Optional[str] = None):
         """
         初始化速率限制错误异常
-        :param message: 错误消息
-        :param retry_after: 重试
-        :param limit_type: 限制类型
+
+        Args:
+            message: 错误消息
+            retry_after: 重试
+            limit_type: 限制类型
         """
         details = {
             "retry_after": retry_after,
@@ -281,9 +301,11 @@ class DeviceError(ThingsBoardError):
                  device_name: Optional[str] = None):
         """
         初始化设备相关错误异常
-        :param message: 错误消息
-        :param device_id: 设备标识符号
-        :param device_name: 设备名称
+
+        Args:
+            message: 错误消息
+            device_id: 设备标识符号
+            device_name: 设备名称
         """
         details = {
             "device_id": device_id,
@@ -305,9 +327,11 @@ class TelemetryError(ThingsBoardError):
                  data_value: Any = None):
         """
         初始化遥测数据相关错误异常
-        :param message: 错误消息
-        :param data_key: 数据键
-        :param data_value: 数据值
+
+        Args:
+            message: 错误消息
+            data_key: 数据键
+            data_value: 数据值
         """
         details = {
             "data_key": data_key,
@@ -329,9 +353,11 @@ class AlarmError(ThingsBoardError):
                  alarm_type: Optional[str] = None):
         """
         初始化遥测数据相关错误异常
-        :param message: 错误消息
-        :param alarm_id: 报警ID
-        :param alarm_type: 报警类型
+
+        Args:
+            message: 错误消息
+            alarm_id: 报警ID
+            alarm_type: 报警类型
         """
         details = {
             "alarm_id": alarm_id,
@@ -354,10 +380,12 @@ class RPCError(ThingsBoardError):
                  timeout_seconds: Optional[float] = None):
         """
         初始化 RPC 调用相关错误异常
-        :param message: 错误消息
-        :param method_name: 方法名称
-        :param device_id: 设备标识符
-        :param timeout_seconds: 超时时间
+
+        Args:
+            message: 错误消息
+            method_name: 方法名称
+            device_id: 设备标识符
+            timeout_seconds: 超时时间
         """
         details = {
             "method_name": method_name,
