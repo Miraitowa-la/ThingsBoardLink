@@ -24,6 +24,23 @@ from .exceptions import (
     AlarmError,
     RPCError
 )
+from .models import (
+    Device,
+    DeviceCredentials,
+    TelemetryData,
+    Attribute,
+    Alarm,
+    RPCRequest,
+    RPCResponse,
+    EntityRelation,
+    EntityId,
+    PageData,
+    TimeseriesData,
+    EntityType,
+    AlarmSeverity,
+    AlarmStatus,
+    AttributeScope
+)
 
 # 公开API
 __all__ = [
@@ -41,4 +58,21 @@ __all__ = [
     "TelemetryError",
     "AlarmError",
     "RPCError",
+
+    # 数据模型
+    "Device",
+    "DeviceCredentials",
+    "TelemetryData",
+    "Attribute",
+    "Alarm",
+    "RPCRequest",
+    "RPCResponse",
+    "EntityRelation",
+    "EntityId",
+    "PageData",
+    "TimeseriesData",
+    "EntityType",
+    "AlarmSeverity",
+    "AlarmStatus",
+    "AttributeScope",
 ]
