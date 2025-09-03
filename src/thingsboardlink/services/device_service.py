@@ -115,3 +115,49 @@ class DeviceService:
                 f"获取设备失败: {str(e)}",
                 device_id=device_id
             )
+
+    def update_device(self, device: Device) -> Device:
+        """
+        更新设备信息
+
+        Args:
+            device: 设备对象
+
+        Returns:
+            Device: 更新后的设备对象
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            DeviceError: 设备更新失败时抛出
+        """
+        if not device.id:
+            raise ValidationError(
+                field_name="device.id",
+                expected_type="非空字符串",
+                actual_value=device.id,
+                message="设备 ID 不能为空"
+            )
+
+        if not device.name or not device.name.strip():
+            raise ValidationError(
+                field_name="device.name",
+                expected_type="非空字符串",
+                actual_value=device.name,
+                message="设备名称不能为空"
+            )
+
+        try:
+            response = self.client.post(
+                "/api/device",
+                data=device.to_dict()
+            )
+
+            device_data = response.json()
+            return Device.from_dict(device_data)
+
+        except Exception as e:
+            raise DeviceError(
+                message=f"更新设备失败: {str(e)}",
+                device_id=device.id,
+                device_name=device.name
+            )
