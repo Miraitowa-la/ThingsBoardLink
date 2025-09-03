@@ -83,6 +83,14 @@ class ThingsBoardClient:
         self._rpc_service = None
         self._relation_service = None
 
+    @property
+    def device_service(self):
+        """获取设备服务实例"""
+        if self._device_service is None:
+            from .services.device_service import DeviceService
+            self._device_service = DeviceService(self)
+        return self._device_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:
