@@ -13,13 +13,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
-from .exceptions import (
-    AuthenticationError,
-    APIError,
-    ConnectionError,
-    TimeoutError,
-    ConfigurationError
-)
+from .exceptions import AuthenticationError, APIError, ConnectionError, TimeoutError, ConfigurationError
 
 
 class ThingsBoardClient:
@@ -174,6 +168,13 @@ class ThingsBoardClient:
                 timeout_seconds=self.timeout,
                 operation="login"
             )
+
+    @property
+    def is_authenticated(self) -> bool:
+        """检查是否已认证"""
+        return (self._jwt_token is not None and
+                self._token_expires_at is not None and
+                time.time() < self._token_expires_at)
 
     def logout(self) -> bool:
         """
