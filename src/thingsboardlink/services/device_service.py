@@ -257,3 +257,41 @@ class DeviceService:
             raise DeviceError(
                 f"获取设备列表失败 | Failed to get device list: {str(e)}"
             )
+
+    def get_device_credentials(self, device_id: str) -> DeviceCredentials:
+        """
+        获取设备凭证
+
+        Args:
+            device_id: 设备 ID
+
+        Returns:
+            DeviceCredentials: 设备凭证对象
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            NotFoundError: 设备不存在时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            response = self.client.get(f"/api/device/{device_id}/credentials")
+            credentials_data = response.json()
+            return DeviceCredentials.from_dict(credentials_data)
+
+        except Exception as e:
+            if "404" in str(e) or "Not Found" in str(e):
+                raise NotFoundError(
+                    resource_type="设备凭证",
+                    resource_id=device_id
+                )
+            raise DeviceError(
+                message=f"获取设备凭证失败: {str(e)}",
+                device_id=device_id
+            )
