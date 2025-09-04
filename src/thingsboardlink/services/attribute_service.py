@@ -176,3 +176,56 @@ class AttributeService:
             raise APIError(
                 f"设置{scope.value}属性失败: {str(e)}"
             )
+
+    def get_client_attributes(self,
+                              device_id: str,
+                              keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        获取客户端属性
+
+        Args:
+            device_id: 设备 ID
+            keys: 属性键列表，为空则获取所有
+
+        Returns:
+            Dict[str, Any]: 客户端属性数据
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            NotFoundError: 设备不存在时抛出
+        """
+        return self._get_attributes(device_id, AttributeScope.CLIENT_SCOPE, keys)
+
+    def get_server_attributes(self,
+                              device_id: str,
+                              keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        获取服务端属性
+
+        Args:
+            device_id: 设备 ID
+            keys: 属性键列表，为空则获取所有
+
+        Returns:
+            Dict[str, Any]: 服务端属性数据
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            NotFoundError: 设备不存在时抛出
+        """
+        return self._get_attributes(device_id, AttributeScope.SERVER_SCOPE, keys)
+
+    def get_shared_attributes(self,
+                              device_id: str,
+                              keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        获取共享属性
+
+        Args:
+            device_id: 设备 ID
+            keys: 属性键列表，为空则获取所有
+
+        Returns:
+            Dict[str, Any]: 共享属性数据
+        """
+        return self._get_attributes(device_id, AttributeScope.SHARED_SCOPE, keys)
