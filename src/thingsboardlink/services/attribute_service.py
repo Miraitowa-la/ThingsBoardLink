@@ -332,3 +332,47 @@ class AttributeService:
             raise APIError(
                 f"删除{scope.value}属性失败: {str(e)}"
             )
+
+    def get_attribute_keys(self,
+                           device_id: str,
+                           scope: AttributeScope) -> List[str]:
+        """
+        获取属性键列表
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+
+        Returns:
+            List[str]: 属性键列表
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            scope_mapping = {
+                AttributeScope.CLIENT_SCOPE: "CLIENT_SCOPE",
+                AttributeScope.SERVER_SCOPE: "SERVER_SCOPE",
+                AttributeScope.SHARED_SCOPE: "SHARED_SCOPE"
+            }
+
+            scope_str = scope_mapping[scope]
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/keys/attributes/{scope_str}"
+
+            response = self.client.get(endpoint)
+            keys_data = response.json()
+
+            return keys_data if isinstance(keys_data, list) else []
+
+        except Exception as e:
+            raise APIError(
+                f"获取{scope.value}属性键失败: {str(e)}"
+            )
