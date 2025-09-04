@@ -327,3 +327,21 @@ class AlarmService:
                 message=f"删除警报失败: {str(e)}",
                 alarm_id=alarm_id
             )
+
+    def alarm_exists(self, alarm_id: str) -> bool:
+        """
+        检查警报是否存在
+
+        Args:
+            alarm_id: 警报 ID
+
+        Returns:
+            bool: 警报是否存在
+        """
+        try:
+            self.get_alarm(alarm_id)
+            return True
+        except NotFoundError:
+            return False
+        except Exception:
+            return False
