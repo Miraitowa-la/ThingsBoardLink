@@ -6,7 +6,9 @@ thingsboardlink 服务模块包
 """
 
 from .device_service import DeviceService
+from .telemetry_service import TelemetryService
 
 __all__ = [
-    'DeviceService'
+    'DeviceService',
+    'TelemetryService'
 ]

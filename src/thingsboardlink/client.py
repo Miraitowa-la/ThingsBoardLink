@@ -91,6 +91,14 @@ class ThingsBoardClient:
             self._device_service = DeviceService(self)
         return self._device_service
 
+    @property
+    def telemetry_service(self):
+        """获取遥测服务实例 | Get telemetry service instance"""
+        if self._telemetry_service is None:
+            from .services.telemetry_service import TelemetryService
+            self._telemetry_service = TelemetryService(self)
+        return self._telemetry_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:
