@@ -4,7 +4,7 @@ ThingsBoardLink 设备管理示例
 本示例演示如何使用 ThingsBoardLink 进行设备管理操作。
 包括设备的创建、查询、更新、删除以及设备凭证管理等功能。
 
-运行前请设置环境变量 | Please set environment variables before running:
+运行前请设置环境变量
 export THINGSBOARD_URL="http://localhost:8080"
 export THINGSBOARD_USERNAME="tenant@thingsboard.org"
 export THINGSBOARD_PASSWORD="tenant"
