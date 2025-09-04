@@ -47,7 +47,8 @@ from .services import (
     DeviceService,
     TelemetryService,
     AttributeService,
-    AlarmService
+    AlarmService,
+    RpcService
 )
 
 # 公开API
@@ -97,5 +98,6 @@ __all__ = [
     "DeviceService",
     "TelemetryService",
     "AttributeService",
-    "AlarmService"
+    "AlarmService",
+    "RpcService"
 ]

@@ -115,6 +115,14 @@ class ThingsBoardClient:
             self._alarm_service = AlarmService(self)
         return self._alarm_service
 
+    @property
+    def rpc_service(self):
+        """获取 RPC 服务实例 | Get RPC service instance"""
+        if self._rpc_service is None:
+            from .services.rpc_service import RpcService
+            self._rpc_service = RpcService(self)
+        return self._rpc_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:
