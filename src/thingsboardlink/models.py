@@ -460,6 +460,72 @@ class RPCResponse:
 
 
 @dataclass
+class PersistentRPCRequest:
+    """持久化 RPC 请求模型"""
+    id: Optional[str] = None
+    device_id: Optional[str] = None
+    method: str = ""
+    params: Dict[str, Any] = field(default_factory=dict)
+    expiration_time: Optional[int] = None
+    status: str = "QUEUED"
+    created_time: Optional[int] = None
+    response: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self):
+        """初始化后处理"""
+        if self.created_time is None:
+            self.created_time = int(time.time() * 1000)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典格式"""
+        result = {
+            "method": self.method,
+            "params": self.params
+        }
+
+        if self.id is not None:
+            result["rpcId"] = self.id  # ThingsBoard 使用 rpcId
+        if self.device_id is not None:
+            result["deviceId"] = self.device_id
+        if self.expiration_time is not None:
+            result["expirationTime"] = self.expiration_time
+        if self.status:
+            result["status"] = self.status
+        if self.created_time is not None:
+            result["createdTime"] = self.created_time
+        if self.response is not None:
+            result["response"] = self.response
+
+        return result
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'PersistentRPCRequest':
+        """从字典创建持久化RPC请求对象"""
+        return cls(
+            id=data.get("rpcId") or data.get("id"),  # ThingsBoard 可能使用 rpcId 或 id
+            device_id=data.get("deviceId"),
+            method=data.get("method", ""),
+            params=data.get("params", {}),
+            expiration_time=data.get("expirationTime"),
+            status=data.get("status", "QUEUED"),
+            created_time=data.get("createdTime") or data.get("creationTime"),
+            response=data.get("response")
+        )
+
+    @property
+    def is_completed(self) -> bool:
+        """检查RPC请求是否已完成"""
+        return self.status in ["SUCCESSFUL", "FAILED", "EXPIRED"]
+
+    @property
+    def is_expired(self) -> bool:
+        """检查RPC请求是否已过期"""
+        if self.expiration_time is None:
+            return False
+        return int(time.time() * 1000) > self.expiration_time
+
+
+@dataclass
 class EntityRelation:
     """实体关系模型"""
     from_id: EntityId
