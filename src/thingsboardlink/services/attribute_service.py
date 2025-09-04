@@ -376,3 +376,39 @@ class AttributeService:
             raise APIError(
                 f"获取{scope.value}属性键失败: {str(e)}"
             )
+
+    def get_all_attributes(self, device_id: str) -> Dict[str, Dict[str, Any]]:
+        """
+        获取设备的所有属性
+
+        Args:
+            device_id: 设备 ID
+
+        Returns:
+            Dict[str, Dict[str, Any]]: 所有属性数据，按范围分组
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        result = {}
+
+        try:
+            # 获取所有范围的属性
+            result["client"] = self.get_client_attributes(device_id)
+            result["server"] = self.get_server_attributes(device_id)
+            result["shared"] = self.get_shared_attributes(device_id)
+
+            return result
+
+        except Exception as e:
+            raise APIError(
+                f"获取设备所有属性失败: {str(e)}"
+            )
