@@ -182,3 +182,62 @@ class TelemetryService:
             raise TelemetryError(
                 f"上传遥测数据失败: {str(e)}"
             )
+
+    def get_latest_telemetry(self,
+                             device_id: str,
+                             keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        获取最新遥测数据
+
+        Args:
+            device_id: 设备 ID
+            keys: 要获取的数据键列表，为空则获取所有
+
+        Returns:
+            Dict[str, Any]: 最新遥测数据
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            NotFoundError: 设备不存在时抛出
+            TelemetryError: 获取数据失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/values/timeseries"
+
+            params = {}
+            if keys:
+                params["keys"] = ",".join(keys)
+
+            response = self.client.get(endpoint, params=params)
+
+            telemetry_data = response.json()
+
+            # 转换为更友好的格式
+            result = {}
+            for key, values in telemetry_data.items():
+                if values and len(values) > 0:
+                    latest_value = values[0]  # 第一个值是最新的
+                    result[key] = {
+                        "value": latest_value.get("value"),
+                        "timestamp": latest_value.get("ts")
+                    }
+
+            return result
+
+        except Exception as e:
+            if "404" in str(e) or "Not Found" in str(e):
+                raise NotFoundError(
+                    resource_type="设备",
+                    resource_id=device_id
+                )
+            raise TelemetryError(
+                f"获取最新遥测数据失败: {str(e)}"
+            )
