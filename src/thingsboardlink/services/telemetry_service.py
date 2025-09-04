@@ -241,3 +241,85 @@ class TelemetryService:
             raise TelemetryError(
                 f"获取最新遥测数据失败: {str(e)}"
             )
+
+    def get_timeseries_telemetry(self,
+                                 device_id: str,
+                                 keys: List[str],
+                                 start_ts: int,
+                                 end_ts: int,
+                                 interval: Optional[int] = None,
+                                 limit: Optional[int] = None,
+                                 agg: Optional[str] = None) -> Dict[str, TimeseriesData]:
+        """
+        获取时间序列遥测数据
+
+        Args:
+            device_id: 设备 ID
+            keys: 数据键列表
+            start_ts: 开始时间戳（毫秒）
+            end_ts: 结束时间戳（毫秒）
+            interval: 聚合间隔（毫秒），可选
+            limit: 数据点数量限制，可选
+            agg: 聚合方式（MIN, MAX, AVG, SUM, COUNT），可选
+
+        Returns:
+            Dict[str, TimeseriesData]: 时间序列数据字典
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            TelemetryError: 获取数据失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        if not keys:
+            raise ValidationError(
+                field_name="keys",
+                expected_type="非空列表",
+                actual_value=keys,
+                message="数据键列表不能为空"
+            )
+
+        if start_ts >= end_ts:
+            raise ValidationError(
+                field_name="start_ts/end_ts",
+                message="开始时间必须小于结束时间"
+            )
+
+        try:
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/values/timeseries"
+
+            params = {
+                "keys": ",".join(keys),
+                "startTs": start_ts,
+                "endTs": end_ts
+            }
+
+            if interval is not None:
+                params["interval"] = interval
+            if limit is not None:
+                params["limit"] = limit
+            if agg is not None:
+                params["agg"] = agg.upper()
+
+            response = self.client.get(endpoint, params=params)
+            telemetry_data = response.json()
+
+            # 转换为 TimeseriesData 对象
+            result = {}
+            for key, values in telemetry_data.items():
+                result[key] = TimeseriesData.from_dict(key, values)
+
+            return result
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise TelemetryError(
+                f"获取时间序列遥测数据失败: {str(e)}"
+            )
