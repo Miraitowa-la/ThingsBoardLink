@@ -87,3 +87,98 @@ class TelemetryService:
                 f"上传遥测数据失败: {str(e)}"
             )
 
+    def post_telemetry_with_device_token(self,
+                                         device_token: str,
+                                         telemetry_data: Union[Dict[str, Any], List[TelemetryData], TelemetryData],
+                                         timestamp: Optional[int] = None) -> bool:
+        """
+        使用设备令牌上传遥测数据
+
+        Args:
+            device_token: 设备访问令牌
+            telemetry_data: 遥测数据
+            timestamp: 时间戳（毫秒），可选
+
+        Returns:
+            bool: 上传是否成功
+        """
+        if not device_token or not device_token.strip():
+            raise ValidationError(
+                field_name="device_token",
+                expected_type="非空字符串",
+                actual_value=device_token,
+                message="设备令牌不能为空"
+            )
+
+        try:
+            # 统一时间戳
+            if timestamp is None:
+                timestamp = int(time.time() * 1000)
+
+            # 转换数据格式
+            if isinstance(telemetry_data, dict):
+                # 字典格式：{"key1": value1, "key2": value2}
+                payload = {
+                    "ts": timestamp,
+                    "values": telemetry_data
+                }
+            elif isinstance(telemetry_data, TelemetryData):
+                # 单个 TelemetryData 对象
+                payload = telemetry_data.to_dict()
+            elif isinstance(telemetry_data, list):
+                # TelemetryData 对象列表
+                if not telemetry_data:
+                    raise ValidationError(
+                        field_name="telemetry_data",
+                        message="遥测数据列表不能为空 | Telemetry data list cannot be empty"
+                    )
+
+                # 按时间戳分组数据
+                grouped_data = {}
+                for item in telemetry_data:
+                    if not isinstance(item, TelemetryData):
+                        raise ValidationError(
+                            field_name="telemetry_data",
+                            expected_type="TelemetryData 对象列表 | List of TelemetryData objects",
+                            actual_value=type(item).__name__
+                        )
+
+                    ts = item.timestamp or timestamp
+                    if ts not in grouped_data:
+                        grouped_data[ts] = {}
+                    grouped_data[ts][item.key] = item.value
+
+                # 转换为 API 格式
+                if len(grouped_data) == 1:
+                    # 单个时间戳
+                    ts, values = next(iter(grouped_data.items()))
+                    payload = {"ts": ts, "values": values}
+                else:
+                    # 多个时间戳
+                    payload = [
+                        {"ts": ts, "values": values}
+                        for ts, values in grouped_data.items()
+                    ]
+            else:
+                raise ValidationError(
+                    field_name="telemetry_data",
+                    expected_type="Dict, TelemetryData 或 List[TelemetryData] | Dict, TelemetryData or List[TelemetryData]",
+                    actual_value=type(telemetry_data).__name__
+                )
+
+            # ThingsBoard 设备遥测数据上传端点
+            response = self.client.post(f"/api/v1/{device_token}/telemetry", data=payload)
+
+            if response.status_code == 200:
+                return True
+            else:
+                raise TelemetryError(
+                    f"遥测数据上传失败，状态码: {response.status_code}"
+                )
+
+        except Exception as e:
+            if isinstance(e, (ValidationError, TelemetryError)):
+                raise
+            raise TelemetryError(
+                f"上传遥测数据失败: {str(e)}"
+            )
