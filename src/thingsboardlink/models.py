@@ -539,3 +539,11 @@ class TimeseriesData:
         """获取指定时间范围内的值"""
         return [v for v in self.values
                 if start_ts <= v.get('ts', 0) <= end_ts]
+
+    def __len__(self) -> int:
+        """支持len()函数，返回values的长度"""
+        return len(self.values)
+
+    def __getitem__(self, index: int) -> Dict[str, Any]:
+        """支持下标操作，直接访问values中的元素"""
+        return self.values[index]
