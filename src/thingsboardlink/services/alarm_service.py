@@ -263,3 +263,35 @@ class AlarmService:
                 f"确认警报失败: {str(e)}",
                 alarm_id=alarm_id
             )
+
+    def clear_alarm(self, alarm_id: str) -> bool:
+        """
+        清除警报
+
+        Args:
+            alarm_id: 警报 ID
+
+        Returns:
+            bool: 清除是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            AlarmError: 警报清除失败时抛出
+        """
+        if not alarm_id or not alarm_id.strip():
+            raise ValidationError(
+                field_name="alarm_id",
+                expected_type="非空字符串",
+                actual_value=alarm_id,
+                message="警报 ID 不能为空"
+            )
+
+        try:
+            response = self.client.post(f"/api/alarm/{alarm_id}/clear")
+            return response.status_code == 200
+
+        except Exception as e:
+            raise AlarmError(
+                f"清除警报失败: {str(e)}",
+                alarm_id=alarm_id
+            )
