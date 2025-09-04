@@ -99,6 +99,14 @@ class ThingsBoardClient:
             self._telemetry_service = TelemetryService(self)
         return self._telemetry_service
 
+    @property
+    def attribute_service(self):
+        """获取属性服务实例 | Get attribute service instance"""
+        if self._attribute_service is None:
+            from .services.attribute_service import AttributeService
+            self._attribute_service = AttributeService(self)
+        return self._attribute_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:

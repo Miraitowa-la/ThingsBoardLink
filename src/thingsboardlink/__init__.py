@@ -45,7 +45,8 @@ from .models import (
 
 from .services import (
     DeviceService,
-    TelemetryService
+    TelemetryService,
+    AttributeService
 )
 
 # 公开API
@@ -93,5 +94,6 @@ __all__ = [
 
     # 服务类 | Service classes
     "DeviceService",
-    "TelemetryService"
+    "TelemetryService",
+    "AttributeService"
 ]
