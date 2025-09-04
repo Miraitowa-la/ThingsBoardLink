@@ -260,7 +260,7 @@ class AlarmService:
 
         except Exception as e:
             raise AlarmError(
-                f"确认警报失败: {str(e)}",
+                message=f"确认警报失败: {str(e)}",
                 alarm_id=alarm_id
             )
 
@@ -292,6 +292,38 @@ class AlarmService:
 
         except Exception as e:
             raise AlarmError(
-                f"清除警报失败: {str(e)}",
+                message=f"清除警报失败: {str(e)}",
+                alarm_id=alarm_id
+            )
+
+    def delete_alarm(self, alarm_id: str) -> bool:
+        """
+        删除警报
+
+        Args:
+            alarm_id: 警报 ID
+
+        Returns:
+            bool: 删除是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            AlarmError: 警报删除失败时抛出
+        """
+        if not alarm_id or not alarm_id.strip():
+            raise ValidationError(
+                field_name="alarm_id",
+                expected_type="非空字符串",
+                actual_value=alarm_id,
+                message="警报 ID 不能为空"
+            )
+
+        try:
+            response = self.client.delete(f"/api/alarm/{alarm_id}")
+            return response.status_code == 200
+
+        except Exception as e:
+            raise AlarmError(
+                message=f"删除警报失败: {str(e)}",
                 alarm_id=alarm_id
             )
