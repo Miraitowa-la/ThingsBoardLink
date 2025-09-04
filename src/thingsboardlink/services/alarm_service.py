@@ -90,3 +90,41 @@ class AlarmService:
                 message=f"创建警报失败: {str(e)}",
                 alarm_type=alarm_type
             )
+
+    def get_alarm(self, alarm_id: str) -> Alarm:
+        """
+        根据 ID 获取警报
+
+        Args:
+            alarm_id: 警报 ID
+
+        Returns:
+            Alarm: 警报对象
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            NotFoundError: 警报不存在时抛出
+        """
+        if not alarm_id or not alarm_id.strip():
+            raise ValidationError(
+                field_name="alarm_id",
+                expected_type="非空字符串",
+                actual_value=alarm_id,
+                message="警报 ID 不能为空"
+            )
+
+        try:
+            response = self.client.get(f"/api/alarm/{alarm_id}")
+            alarm_data = response.json()
+            return Alarm.from_dict(alarm_data)
+
+        except Exception as e:
+            if "404" in str(e) or "Not Found" in str(e):
+                raise NotFoundError(
+                    resource_type="警报",
+                    resource_id=alarm_id
+                )
+            raise AlarmError(
+                message=f"获取警报失败: {str(e)}",
+                alarm_id=alarm_id
+            )
