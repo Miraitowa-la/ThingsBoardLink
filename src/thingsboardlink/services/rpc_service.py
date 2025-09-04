@@ -9,7 +9,7 @@ import time
 from typing import Optional, Dict, Any, Union
 
 from ..models import RPCRequest, RPCResponse
-from ..exceptions import ValidationError, RPCError, TimeoutError, NotFoundError
+from ..exceptions import ValidationError, RPCError, TimeoutError, APIError
 
 
 class RpcService:
@@ -186,4 +186,69 @@ class RpcService:
                 method_name=method,
                 device_id=device_id,
                 timeout_seconds=timeout_seconds
+            )
+
+    def send_rpc_with_retry(self,
+                            device_id: str,
+                            method: str,
+                            params: Optional[Dict[str, Any]] = None,
+                            max_retries: int = 3,
+                            timeout_seconds: float = 30.0,
+                            retry_delay: float = 1.0) -> RPCResponse:
+        """
+        发送带重试的双向 RPC 请求
+
+        Args:
+            device_id: 设备 ID
+            method: RPC 方法名
+            params: RPC 参数
+            max_retries: 最大重试次数
+            timeout_seconds: 每次请求的超时时间（秒）
+            retry_delay: 重试延迟（秒）
+
+        Returns:
+            RPCResponse: RPC 响应对象
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            RPCError: 所有重试都失败时抛出
+        """
+        if max_retries < 0:
+            raise ValidationError(
+                field_name="max_retries",
+                expected_type="非负整数",
+                actual_value=max_retries,
+                message="最大重试次数不能小于 0"
+            )
+
+        last_error = None
+
+        for attempt in range(max_retries + 1):
+            try:
+                return self.send_two_way_rpc(
+                    device_id=device_id,
+                    method=method,
+                    params=params,
+                    timeout_seconds=timeout_seconds
+                )
+
+            except (RPCError, TimeoutError) as e:
+                last_error = e
+
+                if attempt < max_retries:
+                    # 等待后重试
+                    time.sleep(retry_delay)
+                    continue
+                else:
+                    # 所有重试都失败
+                    break
+
+        # 抛出最后一个错误
+        if last_error:
+            raise last_error
+        else:
+            raise RPCError(
+                message=f"发送 RPC 请求失败，已重试 {max_retries} 次",
+                method_name=method,
+                device_id=device_id
             )
