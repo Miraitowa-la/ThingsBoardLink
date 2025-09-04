@@ -412,3 +412,22 @@ class AttributeService:
             raise APIError(
                 f"获取设备所有属性失败: {str(e)}"
             )
+
+    def update_attribute(self,
+                         device_id: str,
+                         scope: AttributeScope,
+                         key: str,
+                         value: Any) -> bool:
+        """
+        更新单个属性
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+            key: 属性键
+            value: 属性值
+
+        Returns:
+            bool: 更新是否成功
+        """
+        return self._set_attributes(device_id, scope, {key: value})
