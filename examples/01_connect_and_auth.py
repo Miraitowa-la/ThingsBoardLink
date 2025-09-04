@@ -242,9 +242,13 @@ def main():
 
     try:
         # 运行所有示例
+        # 1.基本连接示例
         example_basic_connection()
+        # 2.上下文管理器示例
         example_context_manager()
+        # 3.高级配置示例
         example_advanced_configuration()
+        # 4.错误处理示例
         example_error_handling()
 
         print("\n" + "=" * 40)
