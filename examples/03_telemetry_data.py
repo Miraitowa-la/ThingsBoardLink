@@ -14,17 +14,12 @@ import time
 import uuid
 import random
 import json
-from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
+from datetime import datetime
+from typing import Optional
 
 from src.thingsboardlink import (
     ThingsBoardClient,
     Device,
-    TelemetryData,
-    TimeseriesData,
-    EntityId,
-    EntityType,
-    ThingsBoardError,
     ValidationError,
     NotFoundError
 )
