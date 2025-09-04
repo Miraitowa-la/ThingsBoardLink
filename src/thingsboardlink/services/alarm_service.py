@@ -231,3 +231,35 @@ class AlarmService:
             raise AlarmError(
                 f"获取警报列表失败: {str(e)}"
             )
+
+    def ack_alarm(self, alarm_id: str) -> bool:
+        """
+        确认警报
+
+        Args:
+            alarm_id: 警报 ID
+
+        Returns:
+            bool: 确认是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            AlarmError: 警报确认失败时抛出
+        """
+        if not alarm_id or not alarm_id.strip():
+            raise ValidationError(
+                field_name="alarm_id",
+                expected_type="非空字符串",
+                actual_value=alarm_id,
+                message="警报 ID 不能为空"
+            )
+
+        try:
+            response = self.client.post(f"/api/alarm/{alarm_id}/ack")
+            return response.status_code == 200
+
+        except Exception as e:
+            raise AlarmError(
+                f"确认警报失败: {str(e)}",
+                alarm_id=alarm_id
+            )
