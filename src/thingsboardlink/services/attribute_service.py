@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Any, Union
 from ..models import Attribute, AttributeScope
 from ..exceptions import ValidationError, NotFoundError, APIError
 
+
 class AttributeService:
     """
     属性服务类
@@ -18,7 +19,7 @@ class AttributeService:
     支持客户端属性、服务端属性和共享属性的完整管理。
     """
 
-    def __init__(self,client):
+    def __init__(self, client):
         """
         初始化属性服务
 
@@ -26,3 +27,152 @@ class AttributeService:
             client: ThingsBoardClient 实例
         """
         self.client = client
+
+    def _get_attributes(self,
+                        device_id: str,
+                        scope: AttributeScope,
+                        keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        获取指定范围的属性
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+            keys: 属性键列表
+
+        Returns:
+            Dict[str, Any]: 属性数据
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            # 构建端点 URL
+            scope_mapping = {
+                AttributeScope.CLIENT_SCOPE: "CLIENT_SCOPE",
+                AttributeScope.SERVER_SCOPE: "SERVER_SCOPE",
+                AttributeScope.SHARED_SCOPE: "SHARED_SCOPE"
+            }
+
+            scope_str = scope_mapping[scope]
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/values/attributes/{scope_str}"
+
+            params = {}
+            if keys:
+                params["keys"] = ",".join(keys)
+
+            response = self.client.get(endpoint, params=params)
+
+            # 处理响应数据
+            attributes_data = response.json()
+
+            # 转换为更友好的格式
+            result = {}
+            if isinstance(attributes_data, list):
+                # 列表格式：[{"key": "attr1", "value": "value1", "lastUpdateTs": 123456}]
+                for attr in attributes_data:
+                    key = attr.get("key")
+                    if key:
+                        result[key] = {
+                            "value": attr.get("value"),
+                            "lastUpdateTs": attr.get("lastUpdateTs")
+                        }
+            elif isinstance(attributes_data, dict):
+                # 字典格式：{"attr1": [{"value": "value1", "ts": 123456}]}
+                for key, values in attributes_data.items():
+                    if values and len(values) > 0:
+                        latest_value = values[0]  # 第一个值是最新的
+                        result[key] = {
+                            "value": latest_value.get("value"),
+                            "lastUpdateTs": latest_value.get("ts")
+                        }
+
+            return result
+
+        except Exception as e:
+            if "404" in str(e) or "Not Found" in str(e):
+                raise NotFoundError(
+                    resource_type="设备",
+                    resource_id=device_id
+                )
+            raise APIError(
+                f"获取{scope.value}属性失败: {str(e)}"
+            )
+
+    def _set_attributes(self,
+                        device_id: str,
+                        scope: AttributeScope,
+                        attributes: Union[Dict[str, Any], List[Attribute]]) -> bool:
+        """
+        设置指定范围的属性
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+            attributes: 属性数据
+
+        Returns:
+            bool: 设置是否成功
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        if not attributes:
+            raise ValidationError(
+                field_name="attributes",
+                expected_type="非空数据",
+                actual_value=attributes,
+                message="属性数据不能为空"
+            )
+
+        try:
+            # 转换属性数据格式
+            if isinstance(attributes, dict):
+                payload = attributes
+            elif isinstance(attributes, list):
+                payload = {}
+                for attr in attributes:
+                    if isinstance(attr, Attribute):
+                        payload[attr.key] = attr.value
+                    else:
+                        raise ValidationError(
+                            field_name="attributes",
+                            expected_type="Attribute 对象列表",
+                            actual_value=type(attr).__name__
+                        )
+            else:
+                raise ValidationError(
+                    field_name="attributes",
+                    expected_type="Dict 或 List[Attribute]",
+                    actual_value=type(attributes).__name__
+                )
+
+            # 构建端点 URL
+            scope_mapping = {
+                AttributeScope.CLIENT_SCOPE: "CLIENT_SCOPE",
+                AttributeScope.SERVER_SCOPE: "SERVER_SCOPE",
+                AttributeScope.SHARED_SCOPE: "SHARED_SCOPE"
+            }
+
+            scope_str = scope_mapping[scope]
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/{scope_str}"
+
+            response = self.client.post(endpoint, data=payload)
+            return response.status_code == 200
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise APIError(
+                f"设置{scope.value}属性失败: {str(e)}"
+            )
