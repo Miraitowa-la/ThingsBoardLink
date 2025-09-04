@@ -337,3 +337,21 @@ class DeviceService:
                 f"搜索设备失败: {str(e)}",
                 device_name=device_name
             )
+
+    def device_exists(self, device_id: str) -> bool:
+        """
+        检查设备是否存在
+
+        Args:
+            device_id: 设备 ID
+
+        Returns:
+            bool: 设备是否存在
+        """
+        try:
+            self.get_device_by_id(device_id)
+            return True
+        except NotFoundError:
+            return False
+        except Exception:
+            return False
