@@ -128,3 +128,106 @@ class AlarmService:
                 message=f"获取警报失败: {str(e)}",
                 alarm_id=alarm_id
             )
+
+    def get_alarms(self,
+                   originator_id: str,
+                   page_size: int = 10,
+                   page: int = 0,
+                   text_search: Optional[str] = None,
+                   sort_property: Optional[str] = None,
+                   sort_order: Optional[str] = None,
+                   start_time: Optional[int] = None,
+                   end_time: Optional[int] = None,
+                   fetch_originator: bool = False,
+                   status_list: Optional[List[AlarmStatus]] = None,
+                   severity_list: Optional[List[AlarmSeverity]] = None,
+                   type_list: Optional[List[str]] = None) -> PageData:
+        """
+        获取警报列表
+
+        Args:
+            originator_id: 发起者 ID
+            page_size: 页面大小
+            page: 页码（从 0 开始）
+            text_search: 文本搜索
+            sort_property: 排序属性
+            sort_order: 排序顺序（ASC/DESC）
+            start_time: 开始时间戳（毫秒）
+            end_time: 结束时间戳（毫秒）
+            fetch_originator: 是否获取发起者信息
+            status_list: 状态过滤列表
+            severity_list: 严重程度过滤列表
+            type_list: 类型过滤列表
+
+        Returns:
+            PageData: 分页警报数据
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not originator_id or not originator_id.strip():
+            raise ValidationError(
+                field_name="originator_id",
+                expected_type="非空字符串",
+                actual_value=originator_id,
+                message="发起者 ID 不能为空"
+            )
+
+        if page_size <= 0:
+            raise ValidationError(
+                field_name="page_size",
+                expected_type="正整数",
+                actual_value=page_size,
+                message="页面大小必须大于 0"
+            )
+
+        if page < 0:
+            raise ValidationError(
+                field_name="page",
+                expected_type="非负整数",
+                actual_value=page,
+                message="页码不能小于 0"
+            )
+
+        try:
+            params = {
+                "pageSize": page_size,
+                "page": page,
+                "fetchOriginator": str(fetch_originator).lower()
+            }
+
+            if text_search:
+                params["textSearch"] = text_search
+            if sort_property:
+                params["sortProperty"] = sort_property
+            if sort_order:
+                params["sortOrder"] = sort_order
+            if start_time is not None:
+                params["startTime"] = start_time
+            if end_time is not None:
+                params["endTime"] = end_time
+
+            # 状态过滤
+            if status_list:
+                params["statusList"] = ",".join([status.value for status in status_list])
+
+            # 严重程度过滤
+            if severity_list:
+                params["severityList"] = ",".join([severity.value for severity in severity_list])
+
+            # 类型过滤
+            if type_list:
+                params["typeList"] = ",".join(type_list)
+
+            endpoint = f"/api/alarm/DEVICE/{originator_id}"
+            response = self.client.get(endpoint, params=params)
+
+            page_data = response.json()
+            return PageData.from_dict(page_data, Alarm)
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise AlarmError(
+                f"获取警报列表失败: {str(e)}"
+            )
