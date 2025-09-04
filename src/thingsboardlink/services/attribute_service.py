@@ -229,3 +229,33 @@ class AttributeService:
             Dict[str, Any]: 共享属性数据
         """
         return self._get_attributes(device_id, AttributeScope.SHARED_SCOPE, keys)
+
+    def set_server_attributes(self,
+                              device_id: str,
+                              attributes: Union[Dict[str, Any], List[Attribute]]) -> bool:
+        """
+        设置服务端属性
+
+        Args:
+            device_id: 设备 ID
+            attributes: 属性数据
+
+        Returns:
+            bool: 设置是否成功
+        """
+        return self._set_attributes(device_id, AttributeScope.SERVER_SCOPE, attributes)
+
+    def set_shared_attributes(self,
+                              device_id: str,
+                              attributes: Union[Dict[str, Any], List[Attribute]]) -> bool:
+        """
+        设置共享属性
+
+        Args:
+            device_id: 设备 ID
+            attributes: 属性数据
+
+        Returns:
+            bool: 设置是否成功
+        """
+        return self._set_attributes(device_id, AttributeScope.SHARED_SCOPE, attributes)
