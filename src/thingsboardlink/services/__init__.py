@@ -8,9 +8,11 @@ thingsboardlink 服务模块包
 from .device_service import DeviceService
 from .telemetry_service import TelemetryService
 from .attribute_service import AttributeService
+from .alarm_service import AlarmService
 
 __all__ = [
-    'DeviceService',
-    'TelemetryService',
-    'AttributeService'
+    "DeviceService",
+    "TelemetryService",
+    "AttributeService",
+    "AlarmService"
 ]

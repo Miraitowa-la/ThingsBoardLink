@@ -107,6 +107,14 @@ class ThingsBoardClient:
             self._attribute_service = AttributeService(self)
         return self._attribute_service
 
+    @property
+    def alarm_service(self):
+        """获取警报服务实例 | Get alarm service instance"""
+        if self._alarm_service is None:
+            from .services.alarm_service import AlarmService
+            self._alarm_service = AlarmService(self)
+        return self._alarm_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:
