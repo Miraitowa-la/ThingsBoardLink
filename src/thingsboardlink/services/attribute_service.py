@@ -431,3 +431,24 @@ class AttributeService:
             bool: 更新是否成功
         """
         return self._set_attributes(device_id, scope, {key: value})
+
+    def attribute_exists(self,
+                         device_id: str,
+                         scope: AttributeScope,
+                         key: str) -> bool:
+        """
+        检查属性是否存在
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+            key: 属性键
+
+        Returns:
+            bool: 属性是否存在
+        """
+        try:
+            attributes = self._get_attributes(device_id, scope, [key])
+            return key in attributes
+        except Exception:
+            return False
