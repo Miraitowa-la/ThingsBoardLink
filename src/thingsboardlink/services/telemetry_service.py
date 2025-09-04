@@ -323,3 +323,67 @@ class TelemetryService:
             raise TelemetryError(
                 f"获取时间序列遥测数据失败: {str(e)}"
             )
+
+    def delete_telemetry(self,
+                         device_id: str,
+                         keys: List[str],
+                         delete_all_data_for_keys: bool = True,
+                         start_ts: Optional[int] = None,
+                         end_ts: Optional[int] = None) -> bool:
+        """
+        删除遥测数据
+
+        Args:
+            device_id: 设备 ID
+            keys: 要删除的数据键列表
+            delete_all_data_for_keys: 是否删除键的所有数据，默认为 True
+            start_ts: 开始时间戳（毫秒），可选
+            end_ts: 结束时间戳（毫秒），可选
+
+        Returns:
+            bool: 删除是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            TelemetryError: 删除数据失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        if not keys:
+            raise ValidationError(
+                field_name="keys",
+                expected_type="非空列表",
+                actual_value=keys,
+                message="数据键列表不能为空"
+            )
+
+        try:
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/timeseries/delete"
+
+            params = {
+                "keys": ",".join(keys),
+                "deleteAllDataForKeys": str(delete_all_data_for_keys).lower()
+            }
+
+            # 当不删除所有数据时，必须提供时间范围
+            if not delete_all_data_for_keys:
+                if start_ts is None or end_ts is None:
+                    # 如果没有提供时间范围，则设置为删除所有数据
+                    params["deleteAllDataForKeys"] = "true"
+                else:
+                    params["startTs"] = start_ts
+                    params["endTs"] = end_ts
+
+            response = self.client.delete(endpoint, params=params)
+            return response.status_code == 200
+
+        except Exception as e:
+            raise TelemetryError(
+                f"删除遥测数据失败: {str(e)}"
+            )
