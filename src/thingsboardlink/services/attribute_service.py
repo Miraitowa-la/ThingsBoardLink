@@ -259,3 +259,76 @@ class AttributeService:
             bool: 设置是否成功
         """
         return self._set_attributes(device_id, AttributeScope.SHARED_SCOPE, attributes)
+
+    def delete_attributes(self,
+                          device_id: str,
+                          scope: AttributeScope,
+                          keys: List[str]) -> bool:
+        """
+        删除属性
+
+        Args:
+            device_id: 设备 ID
+            scope: 属性范围
+            keys: 要删除的属性键列表
+
+        Returns:
+            bool: 删除是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        if not keys:
+            raise ValidationError(
+                field_name="keys",
+                expected_type="非空列表",
+                actual_value=keys,
+                message="属性键列表不能为空"
+            )
+
+        try:
+            # 验证scope参数
+            if not isinstance(scope, AttributeScope):
+                raise ValidationError(
+                    field_name="scope",
+                    expected_type="AttributeScope 枚举",
+                    actual_value=type(scope).__name__,
+                    message="scope 必须是 AttributeScope 枚举类型"
+                )
+
+            scope_mapping = {
+                AttributeScope.CLIENT_SCOPE: "CLIENT_SCOPE",
+                AttributeScope.SERVER_SCOPE: "SERVER_SCOPE",
+                AttributeScope.SHARED_SCOPE: "SHARED_SCOPE"
+            }
+
+            if scope not in scope_mapping:
+                raise ValidationError(
+                    field_name="scope",
+                    expected_type="有效的 AttributeScope 值",
+                    actual_value=str(scope),
+                    message=f"不支持的属性范围: {scope}"
+                )
+
+            scope_str = scope_mapping[scope]
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/{scope_str}"
+
+            params = {"keys": ",".join(keys)}
+
+            response = self.client.delete(endpoint, params=params)
+            return response.status_code == 200
+
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise APIError(
+                f"删除{scope.value}属性失败: {str(e)}"
+            )
