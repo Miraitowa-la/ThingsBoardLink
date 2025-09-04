@@ -387,3 +387,37 @@ class TelemetryService:
             raise TelemetryError(
                 f"删除遥测数据失败: {str(e)}"
             )
+
+    def get_telemetry_keys(self, device_id: str) -> List[str]:
+        """
+        获取设备的所有遥测数据键
+
+        Args:
+            device_id: 设备 ID
+
+        Returns:
+            List[str]: 遥测数据键列表
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+            TelemetryError: 获取数据键失败时抛出
+        """
+        if not device_id or not device_id.strip():
+            raise ValidationError(
+                field_name="device_id",
+                expected_type="非空字符串",
+                actual_value=device_id,
+                message="设备 ID 不能为空"
+            )
+
+        try:
+            endpoint = f"/api/plugins/telemetry/DEVICE/{device_id}/keys/timeseries"
+            response = self.client.get(endpoint)
+
+            keys_data = response.json()
+            return keys_data if isinstance(keys_data, list) else []
+
+        except Exception as e:
+            raise TelemetryError(
+                f"获取遥测数据键失败: {str(e)}"
+            )
