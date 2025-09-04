@@ -295,3 +295,45 @@ class DeviceService:
                 message=f"获取设备凭证失败: {str(e)}",
                 device_id=device_id
             )
+
+    def get_devices_by_name(self, device_name: str) -> List[Device]:
+        """
+        根据名称搜索设备
+
+        Args:
+            device_name: 设备名称
+
+        Returns:
+            List[Device]: 匹配的设备列表
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not device_name or not device_name.strip():
+            raise ValidationError(
+                field_name="device_name",
+                expected_type="非空字符串",
+                actual_value=device_name,
+                message="设备名称不能为空"
+            )
+
+        try:
+            # 使用分页查询搜索设备
+            page_data = self.get_tenant_devices(
+                page_size=100,  # 获取更多结果
+                text_search=device_name.strip()
+            )
+
+            # 过滤精确匹配的设备
+            matching_devices = [
+                device for device in page_data.data
+                if device.name.lower() == device_name.lower()
+            ]
+
+            return matching_devices
+
+        except Exception as e:
+            raise DeviceError(
+                f"搜索设备失败: {str(e)}",
+                device_name=device_name
+            )
