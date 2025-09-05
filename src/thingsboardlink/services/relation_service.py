@@ -176,3 +176,81 @@ class RelationService:
             raise APIError(
                 f"删除实体关系失败: {str(e)}"
             )
+
+    def get_relation(self,
+                     from_id: str,
+                     from_type: EntityType,
+                     to_id: str,
+                     to_type: EntityType,
+                     relation_type: str,
+                     type_group: str = "COMMON") -> Optional[EntityRelation]:
+        """
+        获取实体关系
+
+        Args:
+            from_id: 源实体 ID
+            from_type: 源实体类型
+            to_id: 目标实体 ID
+            to_type: 目标实体类型
+            relation_type: 关系类型
+            type_group: 类型组
+
+        Returns:
+            Optional[EntityRelation]: 关系对象，不存在时返回 None
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not from_id or not from_id.strip():
+            raise ValidationError(
+                field_name="from_id",
+                expected_type="非空字符串",
+                actual_value=from_id,
+                message="源实体 ID 不能为空"
+            )
+
+        if not to_id or not to_id.strip():
+            raise ValidationError(
+                field_name="to_id",
+                expected_type="非空字符串",
+                actual_value=to_id,
+                message="目标实体 ID 不能为空"
+            )
+
+        if not relation_type or not relation_type.strip():
+            raise ValidationError(
+                field_name="relation_type",
+                expected_type="非空字符串",
+                actual_value=relation_type,
+                message="关系类型不能为空"
+            )
+
+        try:
+            params = {
+                "fromId": from_id.strip(),
+                "fromType": from_type.value,
+                "toId": to_id.strip(),
+                "toType": to_type.value,
+                "relationType": relation_type.strip(),
+                "relationTypeGroup": type_group
+            }
+
+            response = self.client.get("/api/relation", params=params)
+
+            if response.status_code == 200:
+                relation_data = response.json()
+                return EntityRelation.from_dict(relation_data)
+            elif response.status_code == 404:
+                return None
+            else:
+                raise APIError(
+                    message=f"获取实体关系失败，状态码: {response.status_code}",
+                    status_code=response.status_code
+                )
+
+        except Exception as e:
+            if isinstance(e, (ValidationError, APIError)):
+                raise
+            raise APIError(
+                f"获取实体关系失败: {str(e)}"
+            )
