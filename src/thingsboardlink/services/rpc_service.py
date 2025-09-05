@@ -6,10 +6,10 @@ thingsboardlink RPC 服务模块
 """
 
 import time
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any
 
 from ..models import RPCRequest, RPCResponse, PersistentRPCRequest
-from ..exceptions import ValidationError, RPCError, TimeoutError, APIError
+from ..exceptions import ValidationError, RPCError, TimeoutError
 
 
 class RpcService:
