@@ -254,3 +254,48 @@ class RelationService:
             raise APIError(
                 f"获取实体关系失败: {str(e)}"
             )
+
+    def find_by_from(self,
+                     from_id: str,
+                     from_type: EntityType,
+                     relation_type_group: str = "COMMON") -> List[EntityRelation]:
+        """
+        查找从指定实体出发的所有关系
+
+        Args:
+            from_id: 源实体 ID
+            from_type: 源实体类型
+            relation_type_group: 关系类型组
+
+        Returns:
+            List[EntityRelation]: 关系列表
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not from_id or not from_id.strip():
+            raise ValidationError(
+                field_name="from_id",
+                expected_type="非空字符串",
+                actual_value=from_id,
+                message="源实体 ID 不能为空"
+            )
+
+        try:
+            params = {
+                "fromId": from_id.strip(),
+                "fromType": from_type.value,
+                "relationTypeGroup": relation_type_group
+            }
+
+            response = self.client.get("/api/relations", params=params)
+            relations_data = response.json()
+
+            return [EntityRelation.from_dict(rel) for rel in relations_data]
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise APIError(
+                f"查找实体关系失败: {str(e)}"
+            )
