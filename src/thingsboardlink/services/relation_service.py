@@ -344,3 +344,186 @@ class RelationService:
             raise APIError(
                 f"查找实体关系失败: {str(e)}"
             )
+
+    def find_by_query(self,
+                      entity_id: str,
+                      entity_type: EntityType,
+                      direction: str = "FROM",
+                      max_level: int = 1,
+                      fetch_last_level_only: bool = False,
+                      relation_type_group: str = "COMMON") -> List[EntityId]:
+        """
+        通过查询条件查找相关实体
+
+        Args:
+            entity_id: 实体 ID
+            entity_type: 实体类型
+            direction: 查询方向（FROM/TO）
+            max_level: 最大查询层级
+            fetch_last_level_only: 是否只获取最后一层
+            relation_type_group: 关系类型组
+
+        Returns:
+            List[EntityId]: 相关实体 ID 列表
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not entity_id or not entity_id.strip():
+            raise ValidationError(
+                field_name="entity_id",
+                expected_type="非空字符串",
+                actual_value=entity_id,
+                message="实体 ID 不能为空"
+            )
+
+        if direction not in ["FROM", "TO"]:
+            raise ValidationError(
+                field_name="direction",
+                expected_type="FROM 或 TO",
+                actual_value=direction,
+                message="查询方向必须是 FROM 或 TO"
+            )
+
+        if max_level <= 0:
+            raise ValidationError(
+                field_name="max_level",
+                expected_type="正整数",
+                actual_value=max_level,
+                message="最大查询层级必须大于 0"
+            )
+
+        try:
+            query_data = {
+                "rootId": entity_id.strip(),
+                "rootType": entity_type.value,
+                "direction": direction,
+                "maxLevel": max_level,
+                "fetchLastLevelOnly": fetch_last_level_only,
+                "relationTypeGroup": relation_type_group
+            }
+
+            response = self.client.post("/api/relations/info", data=query_data)
+            entities_data = response.json()
+
+            result = []
+            for entity_data in entities_data:
+                if "id" in entity_data and "entityType" in entity_data:
+                    result.append(EntityId.from_dict(entity_data))
+
+            return result
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise APIError(
+                f"查询相关实体失败: {str(e)}"
+            )
+
+    def relation_exists(self,
+                        from_id: str,
+                        from_type: EntityType,
+                        to_id: str,
+                        to_type: EntityType,
+                        relation_type: str,
+                        type_group: str = "COMMON") -> bool:
+        """
+        检查实体关系是否存在
+
+        Args:
+            from_id: 源实体 ID
+            from_type: 源实体类型
+            to_id: 目标实体 ID
+            to_type: 目标实体类型
+            relation_type: 关系类型
+            type_group: 类型组
+
+        Returns:
+            bool: 关系是否存在
+        """
+        try:
+            relation = self.get_relation(
+                from_id=from_id,
+                from_type=from_type,
+                to_id=to_id,
+                to_type=to_type,
+                relation_type=relation_type,
+                type_group=type_group
+            )
+            return relation is not None
+        except Exception:
+            return False
+
+    def delete_relations(self,
+                         entity_id: str,
+                         entity_type: EntityType,
+                         direction: str = "FROM") -> bool:
+        """
+        删除实体的所有关系
+
+        Args:
+            entity_id: 实体 ID
+            entity_type: 实体类型
+            direction: 删除方向（FROM/TO/BOTH）
+
+        Returns:
+            bool: 删除是否成功
+
+        Raises:
+            ValidationError: 参数验证失败时抛出
+        """
+        if not entity_id or not entity_id.strip():
+            raise ValidationError(
+                field_name="entity_id",
+                expected_type="非空字符串",
+                actual_value=entity_id,
+                message="实体 ID 不能为空"
+            )
+
+        if direction not in ["FROM", "TO", "BOTH"]:
+            raise ValidationError(
+                field_name="direction",
+                expected_type="FROM、TO 或 BOTH",
+                actual_value=direction,
+                message="删除方向必须是 FROM、TO 或 BOTH"
+            )
+
+        try:
+            success = True
+
+            if direction in ["FROM", "BOTH"]:
+                # 删除从该实体出发的关系 | Delete relations from this entity
+                relations = self.find_by_from(entity_id, entity_type)
+                for relation in relations:
+                    result = self.delete_relation(
+                        from_id=relation.from_id.id,
+                        from_type=relation.from_id.entity_type,
+                        to_id=relation.to_id.id,
+                        to_type=relation.to_id.entity_type,
+                        relation_type=relation.type,
+                        type_group=relation.type_group
+                    )
+                    success = success and result
+
+            if direction in ["TO", "BOTH"]:
+                # 删除指向该实体的关系 | Delete relations to this entity
+                relations = self.find_by_to(entity_id, entity_type)
+                for relation in relations:
+                    result = self.delete_relation(
+                        from_id=relation.from_id.id,
+                        from_type=relation.from_id.entity_type,
+                        to_id=relation.to_id.id,
+                        to_type=relation.to_id.entity_type,
+                        relation_type=relation.type,
+                        type_group=relation.type_group
+                    )
+                    success = success and result
+
+            return success
+
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            raise APIError(
+                f"删除实体关系失败: {str(e)}"
+            )
