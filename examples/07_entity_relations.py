@@ -409,101 +409,6 @@ def example_find_relations_by_to(client: ThingsBoardClient, devices: List[Device
         print(f"❌ 根据目标实体查找关系时发生错误: {e}")
 
 
-def example_find_related_entities(client: ThingsBoardClient, devices: List[Device]):
-    """查找相关实体示例
-    
-    Args:
-        client: ThingsBoard 客户端
-        devices: 设备列表
-    """
-    print("\n=== 查找相关实体示例 ===")
-
-    try:
-        # 选择网关设备
-        gateway = next((d for d in devices if d.type == "gateway"), None)
-
-        if not gateway:
-            print("❌ 未找到网关设备")
-            return
-
-        print(f"查找相关实体: {gateway.name}")
-
-        # 查找网关包含的所有设备
-        print("\n1. 查找网关包含的设备")
-
-        contained_entities = client.relation_service.find_by_query(
-            entity_id=gateway.id,
-            entity_type=EntityType.DEVICE,
-            relation_type_group="Contains",
-            direction="FROM"
-        )
-
-        if contained_entities:
-            print(f"✅ 找到 {len(contained_entities)} 个包含的实体")
-
-            for i, entity_id in enumerate(contained_entities, 1):
-                try:
-                    device = client.device_service.get_device_by_id(entity_id.id)
-                    if device:
-                        print(f"  {i}. {device.name} ({device.type}) - ID: {device.id}")
-                    else:
-                        print(f"  {i}. 实体 ID: {entity_id.id}")
-                except:
-                    print(f"  {i}. 实体 ID: {entity_id.id}")
-        else:
-            print("❌ 未找到包含的实体")
-
-        # 查找管理网关的实体
-        print("\n2. 查找管理网关的实体")
-
-        managing_entities = client.relation_service.find_related_entities(
-            from_id=gateway.id,
-            from_type=EntityType.DEVICE,
-            relation_type="Manages",
-            direction="TO"
-        )
-
-        if managing_entities:
-            print(f"✅ 找到 {len(managing_entities)} 个管理实体")
-
-            for i, entity_id in enumerate(managing_entities, 1):
-                try:
-                    device = client.device_service.get_device_by_id(entity_id.id)
-                    if device:
-                        print(f"  {i}. {device.name} ({device.type}) - ID: {device.id}")
-                    else:
-                        print(f"  {i}. 实体 ID: {entity_id.id}")
-                except:
-                    print(f"  {i}. 实体 ID: {entity_id.id}")
-        else:
-            print("❌ 未找到管理实体")
-
-        # 查找所有相关实体（不限制关系类型）
-        print("\n3. 查找所有相关实体")
-
-        all_related_from = client.relation_service.find_related_entities(
-            from_id=gateway.id,
-            from_type=EntityType.DEVICE,
-            direction="FROM"
-        )
-
-        all_related_to = client.relation_service.find_related_entities(
-            from_id=gateway.id,
-            from_type=EntityType.DEVICE,
-            direction="TO"
-        )
-
-        total_related = len(all_related_from or []) + len(all_related_to or [])
-
-        print(f"相关实体统计:")
-        print(f"  出向关系: {len(all_related_from or [])}")
-        print(f"  入向关系: {len(all_related_to or [])}")
-        print(f"  总相关实体: {total_related}")
-
-    except Exception as e:
-        print(f"❌ 查找相关实体时发生错误: {e}")
-
-
 def example_relation_exists(client: ThingsBoardClient, devices: List[Device]):
     """检查关系是否存在示例
     
@@ -796,13 +701,10 @@ def main():
                 # 4. 根据目标实体查找关系
                 example_find_relations_by_to(client, demo_devices)
 
-                # # 5. 查找相关实体
-                example_find_related_entities(client, demo_devices)
-
-                # # 6. 检查关系是否存在
+                # 5. 检查关系是否存在
                 example_relation_exists(client, demo_devices)
 
-                # 7. 删除关系
+                # 6. 删除关系
                 example_delete_relations(client, demo_devices)
 
                 # 清理演示设备
