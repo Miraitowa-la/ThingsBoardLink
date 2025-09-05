@@ -90,6 +90,28 @@ class AttributeScope(Enum):
     SHARED_SCOPE = "SHARED_SCOPE"
 
 
+class RpcPersistentStatus(Enum):
+    """
+    RPC 持久化状态枚举
+
+    Attributes:
+        QUEUED: 已排队 - RPC 已创建并保存到数据库，尚未发送到设备
+        SENT: 已发送 - ThingsBoard 已尝试将 RPC 发送到设备
+        DELIVERED: 已送达 - 设备已确认 RPC（单向 RPC 的最终状态）
+        SUCCESSFUL: 成功 - ThingsBoard 已收到双向 RPC 的回复
+        TIMEOUT: 超时 - 传输层检测到 RPC 超时
+        EXPIRED: 过期 - RPC 在配置的到期时间内未送达或未收到回复
+        FAILED: 失败 - 在配置的重试次数内未能传递 RPC，或设备不支持此类命令
+    """
+    QUEUED = "QUEUED"
+    SENT = "SENT"
+    DELIVERED = "DELIVERED"
+    SUCCESSFUL = "SUCCESSFUL"
+    TIMEOUT = "TIMEOUT"
+    EXPIRED = "EXPIRED"
+    FAILED = "FAILED"
+
+
 @dataclass
 class EntityId:
     """实体 ID 模型"""
@@ -467,7 +489,7 @@ class PersistentRPCRequest:
     method: str = ""
     params: Dict[str, Any] = field(default_factory=dict)
     expiration_time: Optional[int] = None
-    status: str = "QUEUED"
+    status: str = RpcPersistentStatus.QUEUED.value
     created_time: Optional[int] = None
     response: Optional[Dict[str, Any]] = None
 
@@ -507,7 +529,7 @@ class PersistentRPCRequest:
             method=data.get("method", ""),
             params=data.get("params", {}),
             expiration_time=data.get("expirationTime"),
-            status=data.get("status", "QUEUED"),
+            status=data.get("status", RpcPersistentStatus.QUEUED.value),
             created_time=data.get("createdTime") or data.get("creationTime"),
             response=data.get("response")
         )
@@ -515,7 +537,9 @@ class PersistentRPCRequest:
     @property
     def is_completed(self) -> bool:
         """检查RPC请求是否已完成"""
-        return self.status in ["SUCCESSFUL", "FAILED", "EXPIRED"]
+        return self.status in [RpcPersistentStatus.SUCCESSFUL.value,
+                               RpcPersistentStatus.FAILED.value,
+                               RpcPersistentStatus.EXPIRED.value]
 
     @property
     def is_expired(self) -> bool:
