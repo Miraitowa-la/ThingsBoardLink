@@ -123,6 +123,14 @@ class ThingsBoardClient:
             self._rpc_service = RpcService(self)
         return self._rpc_service
 
+    @property
+    def relation_service(self):
+        """获取关系服务实例 | Get relation service instance"""
+        if self._relation_service is None:
+            from .services.relation_service import RelationService
+            self._relation_service = RelationService(self)
+        return self._relation_service
+
     def login(self,
               username: Optional[str] = None,
               password: Optional[str] = None) -> bool:

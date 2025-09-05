@@ -10,11 +10,13 @@ from .telemetry_service import TelemetryService
 from .attribute_service import AttributeService
 from .alarm_service import AlarmService
 from .rpc_service import RpcService
+from .relation_service import RelationService
 
 __all__ = [
     "DeviceService",
     "TelemetryService",
     "AttributeService",
     "AlarmService",
-    "RpcService"
+    "RpcService",
+    'RelationService'
 ]
