@@ -200,8 +200,8 @@ def example_create_relations(client: ThingsBoardClient, devices: List[Device]) -
                     print(f"   ✅ 关系创建成功")
 
                     relation = EntityRelation(
-                        from_id=EntityId(id=relation_config["from"].id, entity_type=EntityType.DEVICE),
-                        to_id=EntityId(id=relation_config["to"].id, entity_type=EntityType.DEVICE),
+                        from_entity=EntityId(id=relation_config["from"].id, entity_type=EntityType.DEVICE),
+                        to_entity=EntityId(id=relation_config["to"].id, entity_type=EntityType.DEVICE),
                         type=relation_config["type"]
                     )
 
@@ -262,8 +262,8 @@ def example_get_relation(client: ThingsBoardClient, devices: List[Device]):
         if relation:
             print("✅ 关系查询成功")
             print(f"关系信息:")
-            print(f"  从实体: {relation.from_id.id} ({relation.from_id.entity_type.value})")
-            print(f"  到实体: {relation.to_id.id} ({relation.to_id.entity_type.value})")
+            print(f"  从实体: {relation.from_entity.id} ({relation.from_entity.entity_type.value})")
+            print(f"  到实体: {relation.to_entity.id} ({relation.to_entity.entity_type.value})")
             print(f"  关系类型: {relation.type}")
 
             if relation.additional_info:
@@ -308,7 +308,7 @@ def example_find_relations_by_from(client: ThingsBoardClient, devices: List[Devi
             print("\n关系列表:")
             for i, relation in enumerate(relations, 1):
                 print(f"  {i}. 关系类型: {relation.type}")
-                print(f"     到实体: {relation.to_id.id} ({relation.to_id.entity_type.value})")
+                print(f"     到实体: {relation.to_entity.id} ({relation.to_entity.entity_type.value})")
 
                 # 尝试获取目标设备的详细信息
                 try:
@@ -335,7 +335,7 @@ def example_find_relations_by_from(client: ThingsBoardClient, devices: List[Devi
             print(f"✅ 找到 {len(contains_relations)} 个 'Contains' 关系")
 
             for i, relation in enumerate(contains_relations, 1):
-                print(f"  {i}. 包含设备: {relation.to_id.id}")
+                print(f"  {i}. 包含设备: {relation.to_entity.id}")
         else:
             print("❌ 未找到 'Contains' 关系")
 
@@ -374,11 +374,11 @@ def example_find_relations_by_to(client: ThingsBoardClient, devices: List[Device
             print("\n关系列表:")
             for i, relation in enumerate(relations, 1):
                 print(f"  {i}. 关系类型: {relation.type}")
-                print(f"     从实体y: {relation.from_id.id} ({relation.from_id.entity_type.value})")
+                print(f"     从实体y: {relation.from_entity.id} ({relation.from_entity.entity_type.value})")
 
                 # 尝试获取源设备的详细信息
                 try:
-                    source_device = client.device_service.get_device_by_id(relation.from_id.id)
+                    source_device = client.device_service.get_device_by_id(relation.from_entity.id)
                     if source_device:
                         print(f"     源设备: {source_device.name} ({source_device.type})")
                 except:
@@ -401,7 +401,7 @@ def example_find_relations_by_to(client: ThingsBoardClient, devices: List[Device
             print(f"✅ 找到 {len(monitors_relations)} 个 'Monitors' 关系")
 
             for i, relation in enumerate(monitors_relations, 1):
-                print(f"  {i}. 监控来源: {relation.from_id.id}")
+                print(f"  {i}. 监控来源: {relation.from_entity.id}")
         else:
             print("❌ 未找到 'Monitors' 关系")
 

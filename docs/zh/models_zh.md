@@ -245,8 +245,8 @@ ThingsBoard 平台进行高效交互。
 表示 ThingsBoard 中两个实体之间的关系。
 
 * **属性**:
-    * `from_id` (EntityId): 关系发起方实体的 ID。
-    * `to_id` (EntityId): 关系目标方实体的 ID。
+    * `from_entity` (EntityId): 关系发起方实体的 ID。
+    * `to_entity` (EntityId): 关系目标方实体的 ID。
     * `type` (str): 关系的类型（例如 "Contains"）。
     * `type_group` (str, default: "COMMON"): 关系类型组。
     * `additional_info` (Optional[Dict[str, Any]]): 关系的额外信息字典。

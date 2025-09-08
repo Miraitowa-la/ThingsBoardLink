@@ -552,8 +552,8 @@ class PersistentRPCRequest:
 @dataclass
 class EntityRelation:
     """实体关系模型"""
-    from_id: EntityId
-    to_id: EntityId
+    from_entity: EntityId
+    to_entity: EntityId
     type: str
     type_group: str = "COMMON"
     additional_info: Optional[Dict[str, Any]] = None
@@ -566,8 +566,8 @@ class EntityRelation:
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典格式"""
         return {
-            "from": self.from_id.to_dict(),
-            "to": self.to_id.to_dict(),
+            "from": self.from_entity.to_dict(),
+            "to": self.to_entity.to_dict(),
             "type": self.type,
             "typeGroup": self.type_group,
             "additionalInfo": self.additional_info
@@ -577,8 +577,8 @@ class EntityRelation:
     def from_dict(cls, data: Dict[str, Any]) -> 'EntityRelation':
         """从字典创建实体关系对象"""
         return cls(
-            from_id=EntityId.from_dict(data["from"]),
-            to_id=EntityId.from_dict(data["to"]),
+            from_entity=EntityId.from_dict(data["from"]),
+            to_entity=EntityId.from_dict(data["to"]),
             type=data.get("type", ""),
             type_group=data.get("typeGroup", "COMMON"),
             additional_info=data.get("additionalInfo", {})

@@ -80,8 +80,8 @@ class RelationService:
             )
 
         relation = EntityRelation(
-            from_id=EntityId(id=from_id.strip(), entity_type=from_type),
-            to_id=EntityId(id=to_id.strip(), entity_type=to_type),
+            from_entity=EntityId(id=from_id.strip(), entity_type=from_type),
+            to_entity=EntityId(id=to_id.strip(), entity_type=to_type),
             type=relation_type.strip(),
             type_group=type_group,
             additional_info=additional_info or {}
@@ -421,10 +421,10 @@ class RelationService:
                 relations = self.find_by_from(entity_id, entity_type)
                 for relation in relations:
                     result = self.delete_relation(
-                        from_id=relation.from_id.id,
-                        from_type=relation.from_id.entity_type,
-                        to_id=relation.to_id.id,
-                        to_type=relation.to_id.entity_type,
+                        from_id=relation.from_entity.id,
+                        from_type=relation.from_entity.entity_type,
+                        to_id=relation.to_entity.id,
+                        to_type=relation.to_entity.entity_type,
                         relation_type=relation.type,
                         type_group=relation.type_group
                     )
@@ -435,10 +435,10 @@ class RelationService:
                 relations = self.find_by_to(entity_id, entity_type)
                 for relation in relations:
                     result = self.delete_relation(
-                        from_id=relation.from_id.id,
-                        from_type=relation.from_id.entity_type,
-                        to_id=relation.to_id.id,
-                        to_type=relation.to_id.entity_type,
+                        from_id=relation.from_entity.id,
+                        from_type=relation.from_entity.entity_type,
+                        to_id=relation.to_entity.id,
+                        to_type=relation.to_entity.entity_type,
                         relation_type=relation.type,
                         type_group=relation.type_group
                     )
