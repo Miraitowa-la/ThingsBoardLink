@@ -11,7 +11,7 @@
 
 *IoT Cloud Platform • Developer-Friendly • Production-Ready*
 
-[Chinese](README-zh_CN.md) | [Documentation]() | [Examples](#examples)
+[Chinese](README-zh_CN.md) | [Documentation](docs/en) | [Examples](#examples)
 
 </div>
 

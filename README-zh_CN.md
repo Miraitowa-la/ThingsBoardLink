@@ -11,7 +11,7 @@
 
 *物联网云平台 • 开发者友好 • 生产就绪*
 
-[英文版](README.md)  | [文档]() | [示例](examples)
+[英文版](README.md)  | [文档](docs/zh)) | [示例](examples)
 
 </div>
 
