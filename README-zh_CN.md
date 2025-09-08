@@ -5,13 +5,13 @@
 [![PyPI Downloads](https://static.pepy.tech/badge/thingsboardlink)](https://pepy.tech/projects/thingsboardlink)
 [![PyPI version](https://badge.fury.io/py/thingsboardlink.svg)](https://badge.fury.io/py/thingsboardlink)
 [![Python Version](https://img.shields.io/pypi/pyversions/thingsboardlink.svg)](https://pypi.org/project/thingsboardlink/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.txt)
 
 **专为 Python 开发者设计的高级 IoT 平台交互工具包**
 
 *物联网云平台 • 开发者友好 • 生产就绪*
 
-[英文版](README.md)  | [文档]() | [示例](#examples)
+[英文版](README.md)  | [文档]() | [示例](examples)
 
 </div>
 
@@ -55,13 +55,13 @@ from thingsboardlink import ThingsBoardClient
 
 # 连接对应云平台
 with ThingsBoardClient(
-    base_url="http://localhost:8080",
-    username="tenant@thingsboard.org",
-    password="tenant"
+        base_url="http://localhost:8080",
+        username="tenant@thingsboard.org",
+        password="tenant"
 ) as client:
-    # 设备ID
+    # 对应设备ID
     device_id = "MY_DEVICE_ID"
-    
+
     # 获取对应设备的遥测数据
     value = client.telemetry_service.get_latest_telemetry(device_id)
     print(value)
@@ -69,4 +69,69 @@ with ThingsBoardClient(
 
 ## 📚 完整使用指南
 
-### ...
+### 基础云平台登录/登出
+
+#### 基础实例连接
+
+```python
+from thingsboardlink import ThingsBoardClient
+
+# 创建连接实例
+client = ThingsBoardClient(
+    base_url="http://localhost:8080",  # 服务器URL
+    username="tenant@thingsboard.org",  # 用户名(邮箱)
+    password="tenant",  # 密码
+)
+
+try:
+    # 登录
+    client.login()
+
+    # 相关运行逻辑...
+
+finally:
+    # 登出
+    client.logout()
+```
+
+#### 高级实例连接
+
+```python
+from thingsboardlink import ThingsBoardClient
+
+# 创建连接实例
+client = ThingsBoardClient(
+    base_url="http://localhost:8080",  # 服务器URL
+    username="tenant@thingsboard.org",  # 用户名(邮箱)
+    password="tenant",  # 密码
+    timeout=60.0,  # 请求超时时间
+    max_retries=5,  # 最大重试次数
+    retry_backoff_factor=0.5,  # 重试退避因子
+    verify_ssl=True  # SSL 验证
+)
+
+try:
+    # 登录
+    client.login()
+
+    # 相关运行逻辑...
+
+finally:
+    # 登出
+    client.logout()
+```
+
+#### 上下文管理器
+
+```python
+from thingsboardlink import ThingsBoardClient
+
+# 创建连接实例
+with ThingsBoardClient(
+    base_url="http://localhost:8080",
+    username="tenant@thingsboard.org",
+    password="tenant"
+) as client:
+    # 相关运行逻辑...
+    pass
+```
