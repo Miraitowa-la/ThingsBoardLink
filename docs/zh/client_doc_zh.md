@@ -109,7 +109,8 @@
 * **参数**:
     * `username` (Optional[str]): 用于本次登录的用户名，如果未提供则使用客户端初始化时的用户名。
     * `password` (Optional[str]): 用于本次登录的密码，如果未提供则使用客户端初始化时的密码。
-* **返回**: `bool` - 如果登录成功则返回 `True`，否则返回 `False`。
+* **返回**:
+    * `bool` - 如果登录成功则返回 `True`，否则返回 `False`。
 * **抛出**:
     * `ConfigurationError`: 如果未提供用户名或密码。
     * `AuthenticationError`: 如果认证失败（例如，用户名或密码错误，或服务器返回非 200 状态码）。
@@ -159,7 +160,8 @@
     * `headers` (Optional[Dict[str, str]]): 额外的请求头部字典。
     * `require_auth` (bool, default: `True`): 是否需要认证。如果为 `True`，在发送请求前会调用 `_ensure_authenticated()`。
     * `timeout` (Optional[float]): 本次请求的超时时间（秒）。如果未提供，则使用客户端实例的默认 `timeout`。
-* **返回**: `requests.Response` - 原始的 HTTP 响应对象。
+* **返回**:
+    * `requests.Response` - 原始的 HTTP 响应对象。
 * **抛出**:
     * `AuthenticationError`: 如果 `require_auth` 为 `True` 但客户端未认证。
     * `APIError`: 如果 ThingsBoard API 返回 4xx 或 5xx 状态码。
