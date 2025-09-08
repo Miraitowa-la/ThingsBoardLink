@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "thingsboardlink"
-version = "1.1.0"
+version = "1.2.0"
 description = "一个专为 Python 开发者设计的高级 IoT 平台交互工具包 | A high-level IoT platform interaction toolkit designed for Python developers"
 authors = [
     { name = "Miraitowa-la", email = "2056978412@qq.com" }
