@@ -23,15 +23,15 @@ ThingsBoardLink 是一个功能强大的 Python 软件包，专为简化与 Thin
 
 ### ✨ 核心功能
 
-| 特性           | 描述                    | 优势                 | 说明文档                                                                        | 功能示例                                                              |
-|--------------|-----------------------|--------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------|
-| 🔐 **认证管理**  | 自动处理 JWT 令牌和会话管理      | 提升安全性，实现无状态认证      | [client_doc_zh.md](docs/zh/client_doc_zh.md)                                | [01_connect_and_auth.py](examples/01_connect_and_auth.py)         |
-| 📱 **设备管理**  | 完整的设备 CRUD 操作和凭证管理    | 便捷管理设备生命周期和接入      | [device_service_doc_zh.md](docs/zh/services/device_service_doc_zh.md)       | [02_device_management.py](examples/02_device_management.py)       |
-| 📊 **遥测数据**  | 数据上传、查询和历史数据获取        | 高效处理时序数据，支持实时监控与分析 | [telemetry_service_doc_zh.md](docs/zh/services/telemetry_service_doc_zh.md) | [03_telemetry_data.py](examples/03_telemetry_data.py)             |
-| ⚙️ **属性管理**  | 客户端、服务端和共享属性操作        | 灵活管理设备元数据，支持动态配置   | [attribute_service_doc_zh.md](docs/zh/services/attribute_service_doc_zh.md) | [04_attribute_management.py](examples/04_attribute_management.py) |
-| 🚨 **警报管理**  | 警报创建、查询、确认和清除         | 及时响应异常事件，保障系统可靠性   | [alarm_service_doc_zh.md](docs/zh/services/alarm_service_doc_zh.md)         | [05_alarm_management.py](examples/05_alarm_management.py)         |
-| 🔄 **RPC调用** | 支持单向和双向远程过程调用         | 实现设备与云端间高效指令交互     | [rpc_service_doc_zh.md](docs/zh/services/rpc_service_doc_zh.md)             | [06_rpc_calls.py](examples/06_rpc_calls.py)                       |
-| 🔗 **关系管理**  | 实体间关系的创建和管理           | 构建设备拓扑，实现复杂业务逻辑    | [relation_service_doc_zh.md](docs/zh/services/relation_service_doc_zh.md)   | [07_entity_relations.py](examples/07_entity_relations.py)         |
+| 特性           | 描述                 | 优势                 | 说明文档                                                                    | 功能示例                                                              |
+|--------------|--------------------|--------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|
+| 🔐 **认证管理**  | 自动处理 JWT 令牌和会话管理   | 提升安全性，实现无状态认证      | [client_doc_zh.md](docs/zh/client_zh.md)                                | [01_connect_and_auth.py](examples/01_connect_and_auth.py)         |
+| 📱 **设备管理**  | 完整的设备 CRUD 操作和凭证管理 | 便捷管理设备生命周期和接入      | [device_service_doc_zh.md](docs/zh/services/device_service_zh.md)       | [02_device_management.py](examples/02_device_management.py)       |
+| 📊 **遥测数据**  | 数据上传、查询和历史数据获取     | 高效处理时序数据，支持实时监控与分析 | [telemetry_service_doc_zh.md](docs/zh/services/telemetry_service_zh.md) | [03_telemetry_data.py](examples/03_telemetry_data.py)             |
+| ⚙️ **属性管理**  | 客户端、服务端和共享属性操作     | 灵活管理设备元数据，支持动态配置   | [attribute_service_doc_zh.md](docs/zh/services/attribute_service_zh.md) | [04_attribute_management.py](examples/04_attribute_management.py) |
+| 🚨 **警报管理**  | 警报创建、查询、确认和清除      | 及时响应异常事件，保障系统可靠性   | [alarm_service_doc_zh.md](docs/zh/services/alarm_service_zh.md)         | [05_alarm_management.py](examples/05_alarm_management.py)         |
+| 🔄 **RPC调用** | 支持单向和双向远程过程调用      | 实现设备与云端间高效指令交互     | [rpc_service_doc_zh.md](docs/zh/services/rpc_service_zh.md)             | [06_rpc_calls.py](examples/06_rpc_calls.py)                       |
+| 🔗 **关系管理**  | 实体间关系的创建和管理        | 构建设备拓扑，实现复杂业务逻辑    | [relation_service_doc_zh.md](docs/zh/services/relation_service_zh.md)   | [07_entity_relations.py](examples/07_entity_relations.py)         |
 
 ## 📦 快速开始
 
@@ -92,12 +92,5 @@ ThingsBoardLink/
 │
 └── docs/                           # 📜 说明文档
     ├── zh                          # 中文-说明文档
-    │   ├── client_doc_zh.md        # 核心客户端模块-说明文档
-    │   ├── exceptions_doc_zh.md    # 异常处理模块-说明文档
-    │   └── models_doc_zh.md        # 数据模型模块-说明文档
-    │
     └── en                          # 英文-说明文档
-        ├── client_doc_en.md        # 核心客户端模块-说明文档
-        ├── exceptions_doc_en.md    # 异常处理模块-说明文档
-        └── models_doc_en.md        # 数据模型模块-说明文档
 ```
